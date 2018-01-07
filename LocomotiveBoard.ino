@@ -5,7 +5,7 @@
 
 const char* ssid     = "LGB-Network";
 const char* password = "bruno2017";
-unsigned int udpPort = 4712;
+unsigned int udpPort = 4713;
 unsigned int serverPort = 4711;
 char incomingPacket[255];
 char idPacket[] = "locomotive-packet;LCE";
@@ -13,6 +13,9 @@ char serverIP []= "192.168.10.1";
 WiFiUDP Udp;
 int _direction = 0;
 int _speed = 0;
+int pwmSignal = 14;
+int in1 = 12;
+int in2 = 13;
 
 
 
@@ -36,7 +39,13 @@ void setup()
   Udp.write(idPacket);
   Udp.endPacket();
   
-  
+  pinMode(pwmSignal, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  analogWrite (pwmSignal, 0);
 }
 
 
@@ -51,7 +60,6 @@ void loop()
     {
       incomingPacket[len] = 0;
     }
-    Serial.println(incomingPacket);
     char * results [2];
     char * pch;
     int i = 0;
@@ -72,4 +80,29 @@ void setValues(int direction, int speed)
 {
   Serial.println("called..");
   Serial.println(direction);
+  Serial.println(speed);
+  if (direction == 1)
+  {
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);  
+    analogWrite(pwmSignal, speed);
+  }
+  else if (direction == 2)
+  {
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);  
+    analogWrite(pwmSignal, speed);
+  }
+  else if (direction == 0)
+  {
+    stop();  
+  }
 }
+
+void stop()
+{
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);  
+  analogWrite(pwmSignal, 0);
+}
+
